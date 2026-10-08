@@ -2,149 +2,151 @@
 
 English | [简体中文](README_zh.md)
 
-Jamba 1.6 medical multiple-choice experiments: MedQA/MedMCQA inference, Mini LoRA training, post-training inference and evaluation.
+Jamba Model Operation Instructions
 
-**This release contains code and documentation only; `MedQA/` and `MedMCQA/` are not uploaded.** Dataset paths below describe the local experiment layout. Prepare the data separately after cloning.
+This guide retains the original English instructions. The complete dataset-building commands remain in the [Chinese guide](README_zh.md), based on the [reference project](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/main). Datasets are not included in this code release.
 
-This guide follows the section order and data-processing stages of the [online reference README](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/README_zh.md), while preserving this project's original Jamba filenames, arguments and implementation. The reference uses LLaMA-Factory; its training commands and dependency versions are not interchangeable with these standalone scripts. Checked on 2026-10-08; see the [file-level comparison](readme/线上核对说明.md).
+Dataset sources: [MedQA](https://github.com/jind11/MedQA), [MedMCQA](https://github.com/medmcqa/medmcqa).
 
-## Project environment dependencies
+## 1. Overview
+This instruction comprehensively covers the inference operations of the large and mini versions of the Jamba model, as well as the fine - tuning and post - fine - tuning inference usage methods of the Jamba mini version, providing comprehensive guidance for related operations.
 
-Prefer the original working Linux/CUDA Jamba environment. `requirements.txt` lists dependency names, not a validated lockfile.
+## 2. Environment Preparation
+### 2.1 Installation of Dependent Libraries
+Ensure the following dependent libraries are installed to ensure the normal operation of model - related operations:
+vllm
+torch
+transformers
+peft
+pandas
+tqdm
 
-```bash
-pip install -r requirements.txt
-```
+See [requirements.txt](requirements.txt) for the dependency names; versions must match the original working Jamba environment.
 
-### Hardware and system drivers
+### 2.2 Path Description
+Original server source directory: /work/home/acbjfbaxkm/Jamba-Test
 
-The original local guide records 16 CPU cores, 120 GB RAM and two accelerators for Mini; 64 cores, 480 GB RAM and eight accelerators for Large. These are historical configurations, not verified minimum requirements. Check GPU model, VRAM, driver, CUDA and `number_gpus` before running. The online project's hardware table describes its own experiments, not a Jamba guarantee. Target-server driver and VRAM records remain to be supplied.
-
-### Package versions
-
-The existing training script requires TRL interfaces supporting `SFTConfig(max_seq_length=...)` and its `SFTTrainer` call. Do not copy the online LLaMA-Factory dependency table as a Jamba lockfile. Record Python, PyTorch, Transformers, TRL, PEFT, vLLM and CUDA versions after a successful server run.
-
-### External model API environment variables
-
-Local Jamba training/inference does not call hosted model APIs. Only the explanation-generation stage below needs API credentials. That implementation is not currently migrated; therefore this guide does not introduce unused credential settings. Related wrappers exist in the original project's `dataset_handle/` directory.
-
-### Downloading model weights
-
-Obtain [Jamba Mini 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Mini-1.6) or [Jamba Large 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Large-1.6), retaining complete configuration, tokenizer and weight files. Follow the model pages for download/access requirements.
-
-Inference resolves the model directory under `fixed_path`; training constructs paths inside `main()`. Edit these locations using the original configuration method. The historical model root is `/work/home/acbjfbaxkm/AI21Labs`. Knowledge retrieval requires a separate embedding model.
-
-## MedQA dataset
-
-- [Official repository](https://github.com/jind11/MedQA), [questions and textbooks](https://drive.google.com/file/d/1ImYUSLk9JbgHXOemfvyiDiirluZHPeQw/view?usp=sharing), [paper](https://arxiv.org/abs/2009.13081).
-- Original questions/textbooks: `MedQA/data_clean/`; prepared experiment inputs: `MedQA/result/`.
-
-### MedMCQA dataset
-
-- [Official repository](https://github.com/medmcqa/medmcqa), [homepage](https://medmcqa.github.io/), [download](https://drive.google.com/uc?export=download&id=15VkJdq5eyWIkfb_aoD3oS8i4tScbHYky), [paper](https://proceedings.mlr.press/v174/pal22a.html).
-- Original data: `MedMCQA/data/`; prepared inputs: `MedMCQA/result/`. This is the additional dataset branch retained by this project.
-
-### Prepared experiment files
-
-| Purpose | MedQA (354 records/file) | MedMCQA (300 records/file) |
-| --- | --- | --- |
-| Plain inference | `MedQA/result/MedQA_USS_test.json` | `MedMCQA/result/Med_MCQA_test.json` |
-| Knowledge inference | `MedQA/result/RAG_MedQA_USS_test.json` | `MedMCQA/result/Med_MCQA_knowledge_test.json` |
-| Training | `MedQA/result/RAG_MedQA_USS_test_train.json` | `MedMCQA/result/Med_MCQA_knowledge_test_train.json` |
-
-These are local derivatives, not complete official splits. Raw MedQA JSONL and raw MedMCQA option records cannot replace the `messages` JSON arrays expected by the Jamba scripts. Evaluation also reads `answer_idx`. Historical training filenames do not guarantee separation from test samples; sampling/split provenance remains to be documented.
-
-## Dataset preprocessing
-
-Preserve the online sequence: textbook chunks → vector store → retrieval → explanations → train/test conversation format. The original Chinese guide documents this process, but not every implementation is present in the clean project. Missing scripts below are not presented as runnable local commands.
-
-### Convert text to JSON
-
-Input: English/Chinese textbooks; output: JSON chunks. The online entry is [`txt2json.py`](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/data/MedQA/utils/txt2json.py). Neither local project contains that filename. Its implementation must be supplied before rebuilding from textbooks.
-
-### Vectorize JSON text
-
-Encode chunks with an embedding model and build the retrieval store. The online entry is [`vector_store.py`](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/data/MedQA/utils/vector_store.py). No matching script or vector index is present locally; the original project only retains some `embedding.py`/`config.py` support code.
-
-### Retrieve knowledge for training and test questions
-
-The online entry is [`generate_question_with_knowledges.py`](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/data/MedQA/utils/generate_question_with_knowledges.py), using questions or questions plus options, with `retriever.py` and embedding configuration.
-
-The original project has `dataset_handle/generate_question_with_knowledges_mcqa.py` and `generate_mcqa_question_with_knowledges.py`, but their imported `retriever.py` is absent locally. These scripts have not been migrated. Existing knowledge-augmented datasets can still feed the downstream experiments.
-
-### Generate Chinese explanations
-
-An external model uses prompts and retrieved context to produce explanations. The online implementation is under [`MultiProcessingLLM/`](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/main/data/MedQA/utils/MultiProcessingLLM). The original `dataset_handle/` contains batch callers, API wrappers and an English prompt configuration; these are not migrated or a verified complete Chinese generation environment.
-
-### Build standardized Chinese datasets
-
-The online entry is [`format_json_dataset_for_training_llm.py`](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/data/MedQA/utils/format_json_dataset_for_training_llm.py). The original project has the same filename plus an MCQA variant, neither currently migrated.
-
-The reference additionally registers `dataset_info.json` for LLaMA-Factory. Existing Jamba scripts read JSON directly and do not require this registry. Training records contain assistant targets; inference removes assistant messages when constructing prompts.
-
-Full historical parameter examples remain in the unchanged [original Chinese guide](readme/Jamba模型操作说明.md). Historical paths do not imply that corresponding implementations exist in this clean project.
-
-## Fine-tuning and testing
-
-Continue executing the original filenames. Absolute data paths avoid confusion with the online `data/MedQA/` layout and historical server `USMLE/MCQA/` directories. Existing `os.path.join` calls accept these paths without code changes.
+In this repository, run the model scripts from `jamba/` and create the output directory first:
 
 ```bash
-PROJECT='/path/to/ZhiyiChat(MedQA)'
-cd "$PROJECT/jamba"
+cd /path/to/ZhiyiChat-MedQA/jamba
 mkdir -p results
 ```
 
-Configure model paths, GPU counts and sampling parameters in the scripts. Set the training output root inside `jamba16mini_finetune.py` and the adapter root via `peft_fixed_path` in post-training inference. Their defaults still refer to the original server.
+Configure model, dataset and training output paths in the scripts as before.
+The following key files are included in this directory:
+jamba16large_inference.py
+jamba16mini_finetune.py
+jamba16mini_inference.py
+jamba16mini_inference_by_finetune.py
+Jamba Model Main Path: /work/home/acbjfbaxkm/AI21Labs
+This directory contains:
+AI21-Jamba-Mini-1.6
+AI21-Jamba-Large-1.6
+Directories with suffixes such as <_nept_k4>, <_nept_k6>, <_nept_k....>, which are obtained by modifying the value corresponding to num_experts_per_tok in line 26 of config.json (the original value is 2).
+Dataset Main Path: /work/home/acbjfbaxkm/DataSet
+This directory contains:
+USMLE Directory
+RAG_MedQA_USS_test_train.json: Training dataset (354 items)
+MedQA_USS_test.json: Dataset without knowledge (354 items)
+RAG_MedQA_USS_test.json: Dataset with knowledge (354 items)
+MCQA Directory
+Med_MCQA_knowledge_test_train.json: Training dataset (300 items)
+Med_MCQA_test.json: Dataset without knowledge (300 items)
+Med_MCQA_knowledge_test.json: Dataset with knowledge (300 items)
 
-### Fine-tuning
 
+## 3. Inference of Jamba 16 Large Version
+### 3.1 Code File
+jamba16large_inference.py
+### 3.2 Execution Steps
+Set Parameters: Ensure that parameters such as fixed_path, dataset_path, temperature, top_k, and top_p in the code are set correctly.
+Execute Command:
 ```bash
-# MedQA
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$PROJECT/MedQA/result/RAG_MedQA_USS_test_train.json"
-# MedMCQA
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$PROJECT/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
+python jamba16large_inference.py <model_name> <dataset_filenames>
 ```
 
-Arguments are model directory name and dataset path. Original LoRA settings, SFTTrainer and save behavior are unchanged. Adapters are saved under the configured `finetune_result/<model_name>/<dataset_name>/`; use actual checkpoint names.
-
-### Testing
-
+### 3.3 Parameter Description
+<model_name>: The name of the model, such as AI21-Jamba-Large-1.6.
+<dataset_filenames>: The filenames of the datasets. Multiple filenames can be passed in, separated by spaces, such as dataset1.json dataset2.json.
+### 3.4 Example
 ```bash
-# Mini plain inference on both datasets
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$PROJECT/MedQA/result/MedQA_USS_test.json" "$PROJECT/MedMCQA/result/Med_MCQA_test.json"
-# Large knowledge-augmented inference on both datasets
-python jamba16large_inference.py AI21-Jamba-Large-1.6 "$PROJECT/MedQA/result/RAG_MedQA_USS_test.json" "$PROJECT/MedMCQA/result/Med_MCQA_knowledge_test.json"
-# Post-training Mini inference: replace the final argument with the real adapter directory
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$PROJECT/MedMCQA/result/Med_MCQA_knowledge_test.json" /path/to/actual-adapter
+python jamba16large_inference.py AI21-Jamba-Large-1.6 USMLE/MedQA_USS_test.json
+python jamba16large_inference.py AI21-Jamba-Large-1.6 MCQA/Med_MCQA_test.json
 ```
 
-Either base script can use plain or knowledge-augmented records. Post-training inference merges into `merged/` under the adapter directory and then runs inference in the same process. Excel outputs go to `results/` relative to the working directory.
-
-### Standardize results and calculate accuracy
-
-The Jamba scripts directly write per-question Excel results and calculate accuracy, so the online LLaMA-Factory JSONL-to-Excel entry is unnecessary here. To re-extract answers:
-
+## 4. Inference of Jamba 16 Mini Version
+### 4.1 Code File
+jamba16mini_inference.py
+### 4.2 Execution Steps
+Set Parameters: Ensure that parameters such as fixed_path, dataset_path, temperature, top_k, and top_p in the code are set correctly.
+Execute Command:
 ```bash
-cd "$PROJECT/utils"
-python extract_answer.py --directory "$PROJECT/jamba/results"
+python jamba16mini_inference.py <model_name> <dataset_filenames>
 ```
 
-This overwrites original result files using the existing regex logic. Denominators, matching and exception behavior have not been changed.
-
-### Batch testing
-
-Inference supports multiple data filenames, as above. The reference also includes temperature/top-p/checkpoint sweeps and aggregated experiment scores. No equivalent scheduler or cross-experiment summary script is currently provided; multiple input files are not a full parameter sweep.
-
-## Project files and publication preparation
-
-```text
-jamba/       Four original Jamba 1.6 scripts
-utils/       extract_answer.py
-MedQA/       Original questions/textbooks and prepared inputs
-MedMCQA/     Original and prepared inputs
-readme/      Original bilingual guides and online comparison
+### 4.3 Parameter Description
+<model_name>: The name of the model, such as AI21-Jamba-Mini-1.6.
+<dataset_filenames>: The filenames of the datasets. Multiple filenames can be passed in, separated by spaces, such as dataset1.json dataset2.json.
+### 4.4 Example
+```bash
+python jamba16mini_inference.py AI21-Jamba-Mini-1.6 USMLE/MedQA_USS_test.json
+python jamba16mini_inference.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_test.json
 ```
 
-Two duplicate/broken legacy MCQA inference scripts and the v0.1 trainer were removed. The four core Jamba scripts remain unchanged, with no unified CLI or workflow framework.
+## 5. Finetune of Jamba 16 Mini Version
+### 5.1 Code File
+jamba16mini_finetune.py
+### 5.2 Execution Steps
+Set Parameters: The model name and dataset path can be set through command - line parameters.
+Execute Command:
+```bash
+python jamba16mini_finetune.py <model_name> <dataset_path>
+```
 
-`.gitignore` excludes `MedQA/` and `MedMCQA/` from this code release while preserving local copies. Dataset files are not present in the current commit history, and no LFS objects need to be uploaded.
+### 5.3 Parameter Description
+<model_name>: The name of the model, such as AI21-Jamba-Mini-1.6.
+<dataset_path>: The path of the dataset, such as RAG_MedQA_USS_test_train.json.
+### 5.4 Example
+```bash
+python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 USMLE/RAG_MedQA_USS_test_train.json
+python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_knowledge_test_train.json
+```
+
+### 5.5 Finetune Results
+The save directory is /work/home/acbjfbaxkm/Jamba-Test/finetune_result.
+## 6. Inference after Finetune of Jamba 16 Mini Version
+### 6.1 Code File
+jamba16mini_inference_by_finetune.py
+### 6.2 Execution Steps
+Set Parameters: Ensure that parameters such as fixed_path, dataset_path, temperature, top_k, top_p, and peft_fixed_path in the code are set correctly.
+Execute Command:
+```bash
+python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <peft_relative_path>
+```
+
+### 6.3 Parameter Description
+<model_name>: The name of the model, such as AI21-Jamba-Mini-1.6.
+<dataset_filenames>: The filenames of the datasets. Multiple filenames can be passed in, separated by spaces, such as dataset1.json dataset2.json.
+<peft_relative_path>: The relative path of the Peft model. The fixed path is /work/home/acbjfbaxkm/Jamba-Test/finetune_result, and only the relative path needs to be entered, such as AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300.
+### 6.4 Example
+```bash
+python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_knowledge_test.json AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300
+```
+
+### 6.5 Description
+Before inference, the code will merge the original model (such as AI21-Jamba-Mini-1.6) with the fine - tuned lora weights into the merged directory under the peft_relative_path.
+## 7. Result Saving
+The inference results will be saved to results/ under the working directory (jamba/results/ when following the commands above), and the filename format is:
+jamba16<version>_inference_<related_information>_temperature<temperature_value>_topp<top_p_value>_topk<top_k_value>_<timestamp>.xlsx
+
+## 8. Description of Inference Answer Extraction
+There is a function <extract_predicted_option_by_us> in the inference code to extract the answer replied by the model.
+If a new model output answer format is encountered, the corresponding expression can be added to the function <extract_predicted_option_by_us>.
+Run extract_answer.py from utils/ to reprocess answers in result spreadsheets (.xlsx); it overwrites those files.
+Usage example:
+```bash
+python extract_answer.py --directory /path/to/your/directory
+```
+
+Please adjust the parameters and paths in the above instructions according to the actual situation.
