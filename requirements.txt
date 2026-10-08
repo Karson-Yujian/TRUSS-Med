@@ -1,0 +1,13 @@
+# Dependency names required by the original scripts; not a verified lockfile.
+# Reuse versions from the original working Jamba/CUDA environment.
+# TRL must support the existing SFTConfig(max_seq_length=...) / SFTTrainer API.
+torch
+transformers
+vllm
+peft
+trl
+datasets
+accelerate
+pandas
+tqdm
+openpyxl

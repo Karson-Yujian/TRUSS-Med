@@ -1,0 +1,28 @@
+# Generated model and experiment outputs only (datasets are included)
+/models/
+/AI21Labs/
+/results/
+/jamba/results/
+/jamba_results/
+/finetune_result/
+checkpoint-*/
+merged/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.xlsx
+*.xls
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
+
+# Dataset publication deferred; keep local files only.
+/MedQA/
+/MedMCQA/
