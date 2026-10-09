@@ -2,7 +2,7 @@
 
 Jamba模型调试说明
 
-> 本文沿用原操作说明。`data/` 目录复用自[参考项目的 data 目录](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data)，包含 MedQA 数据、数据处理代码及 `dataset_info.json`；复制时仅排除了 `.DS_Store`、`__pycache__` 和 `.ipynb_checkpoints` 等缓存文件。`MCQA/` 暂为空目录，等待后续补充。第二部分为本项目的 Jamba 操作步骤。
+> 本文沿用原操作说明。`data/` 目录复用自[参考项目的 data 目录](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data)，包含 MedQA 数据、数据处理代码及 `dataset_info.json`；复制时仅排除了 `.DS_Store`、`__pycache__` 和 `.ipynb_checkpoints` 等缓存文件。`data/MCQA/` 暂为空目录，等待后续补充。第二部分为本项目的 Jamba 操作步骤。
 
 # 1. 构建数据集
 
@@ -473,7 +473,7 @@ data/MedQA/data_clean/textbooks：医学教材原始文本与转换后的 JSON �
 ```
 **MCQA 目录**
 ```bash
-MCQA/：暂为空目录，后续补充 MedMCQA 数据
+data/MCQA/：暂为空目录，与 data/MedQA/ 同级，后续补充 MedMCQA 数据
 ```
 
 
