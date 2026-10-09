@@ -23,6 +23,5 @@ venv/
 .idea/
 .vscode/
 
-# Dataset publication deferred; keep local files only.
+# Legacy root-level dataset directory; tracked datasets live under /data.
 /MedQA/
-/MedMCQA/

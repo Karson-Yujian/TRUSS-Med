@@ -2,7 +2,7 @@
 
 Jamba模型调试说明
 
-> 本文沿用原操作说明。`data/` 目录复用自[参考项目的 data 目录](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data)，包含 MedQA 数据、数据处理代码及 `dataset_info.json`；复制时仅排除了 `.DS_Store`、`__pycache__` 和 `.ipynb_checkpoints` 等缓存文件。`data/MCQA/` 暂为空目录，等待后续补充。第二部分为本项目的 Jamba 操作步骤。
+> 本文沿用原操作说明。`data/` 目录中的 MedQA 数据、数据处理代码及 `dataset_info.json` 复用自[参考项目的 data 目录](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data)，MedMCQA 数据来自本项目原实验目录；复制时仅排除了 `.DS_Store`、`__pycache__` 和 `.ipynb_checkpoints` 等缓存文件。第二部分为本项目的 Jamba 操作步骤。
 
 # 1. 构建数据集
 
@@ -122,6 +122,7 @@ cd <你的保存大模型的路径>
 
 * 数据集来源：[MedMCQA](https://github.com/medmcqa/medmcqa)
 * 下载链接：[官方数据下载](https://drive.google.com/uc?export=download&id=15VkJdq5eyWIkfb_aoD3oS8i4tScbHYky)
+* 大文件存储：`data/MedMCQA/data/MedMCQA_train.json` 和 `data/MedMCQA/data/train.json` 使用 Git LFS 管理；克隆后如未自动下载，请运行 `git lfs pull`。
 
 ## 数据集预处理
 
@@ -471,9 +472,11 @@ data/MedQA/RAG_MedQA_Mainland_train_500(example).json：包含 messages 与 answ
 data/MedQA/data_clean/questions：MedQA 原始题目数据
 data/MedQA/data_clean/textbooks：医学教材原始文本与转换后的 JSON 数据
 ```
-**MCQA 目录**
+**MedMCQA 目录**
 ```bash
-data/MCQA/：暂为空目录，与 data/MedQA/ 同级，后续补充 MedMCQA 数据
+data/MedMCQA/data：MedMCQA 原始数据及转换后的数据
+data/MedMCQA/result：用于训练和推理的 MedMCQA 标准数据集
+data/MedMCQA/utils：MedMCQA 数据处理辅助文件
 ```
 
 
@@ -496,6 +499,7 @@ python jamba16large_inference.py <model_name> <dataset_filenames>
 （四）示例
 ```bash
 python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## 四、Jamba 16 Mini 版本推理
@@ -515,6 +519,7 @@ python jamba16mini_inference.py <model_name> <dataset_filenames>
 （四）示例
 ```bash
 python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## 五、Jamba 16 Mini 版本 Finetune
@@ -534,6 +539,7 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 （四）示例
 ```bash
 python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
 ```
 
 （五）finetune 结果
@@ -558,6 +564,7 @@ python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <pe
 （四）示例
 ```bash
 python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
+python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
 ```
 
 （五）说明

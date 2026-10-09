@@ -2,7 +2,7 @@
 
 Jamba Model Debugging Guide
 
-> This document follows the original operating guide. The `data/` directory is reused from the [reference project's data directory](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data) and contains the MedQA data, data-processing code, and `dataset_info.json`. Only cache files and directories such as `.DS_Store`, `__pycache__`, and `.ipynb_checkpoints` were excluded during copying. `data/MCQA/` is currently empty and will be populated later. Part 2 describes the Jamba procedures used in this project.
+> This document follows the original operating guide. The MedQA data, data-processing code, and `dataset_info.json` under `data/` are reused from the [reference project's data directory](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data), while the MedMCQA data comes from this project's original experiment directory. Only cache files and directories such as `.DS_Store`, `__pycache__`, and `.ipynb_checkpoints` were excluded during copying. Part 2 describes the Jamba procedures used in this project.
 
 # 1. Dataset Construction
 
@@ -122,6 +122,7 @@ cd <path_to_your_model_storage_directory>
 
 * Dataset source: [MedMCQA](https://github.com/medmcqa/medmcqa)
 * Download link: [Official dataset download](https://drive.google.com/uc?export=download&id=15VkJdq5eyWIkfb_aoD3oS8i4tScbHYky)
+* Large-file storage: `data/MedMCQA/data/MedMCQA_train.json` and `data/MedMCQA/data/train.json` are managed with Git LFS. If they are not downloaded automatically after cloning, run `git lfs pull`.
 
 ## Dataset Preprocessing
 
@@ -471,9 +472,11 @@ data/MedQA/RAG_MedQA_Mainland_train_500(example).json: training examples contain
 data/MedQA/data_clean/questions: raw MedQA question data
 data/MedQA/data_clean/textbooks: raw medical textbook text and converted JSON data
 ```
-**MCQA Directory**
+**MedMCQA Directory**
 ```bash
-data/MCQA/: currently empty and located at the same level as data/MedQA/; MedMCQA data will be added later
+data/MedMCQA/data: raw and converted MedMCQA data
+data/MedMCQA/result: standardized MedMCQA datasets for training and inference
+data/MedMCQA/utils: auxiliary files for MedMCQA data processing
 ```
 
 
@@ -496,6 +499,7 @@ python jamba16large_inference.py <model_name> <dataset_filenames>
 (4) Example
 ```bash
 python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## IV. Jamba 16 Mini Inference
@@ -515,6 +519,7 @@ python jamba16mini_inference.py <model_name> <dataset_filenames>
 (4) Example
 ```bash
 python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## V. Jamba 16 Mini Fine-Tuning
@@ -534,6 +539,7 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 (4) Example
 ```bash
 python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
 ```
 
 (5) Fine-Tuning Results
@@ -558,6 +564,7 @@ python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <pe
 (4) Example
 ```bash
 python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
+python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
 ```
 
 (5) Notes
