@@ -464,7 +464,7 @@ AI21-Jamba-Large-1.6
 ```
 
 
-原实验的数据集主路径为：/work/home/acbjfbaxkm/DataSet。当前仓库可直接使用 `data/MedQA` 下已复制的数据；运行脚本时可传入数据文件的绝对路径。
+原实验的数据集主路径为：/work/home/acbjfbaxkm/DataSet。当前仓库可直接使用 `data/MedQA` 和 `data/MedMCQA` 下已复制的数据；运行脚本时可传入数据文件的绝对路径。
 该目录下包含：
 **MedQA 目录**
 ```bash
@@ -535,7 +535,7 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 
 （三）参数说明
 `<model_name>`：模型名称，例如 AI21-Jamba-Mini-1.6。
-`<dataset_path>`：数据集路径，例如 RAG_MedQA_USS_test_train.json。
+`<dataset_path>`：数据集路径，例如 `data/MedQA/RAG_MedQA_Mainland_train_500(example).json`。
 （四）示例
 ```bash
 python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
@@ -590,5 +590,6 @@ extract_answer.py
 cd ../utils
 python extract_answer.py --directory /path/to/your/directory
 ```
+不传入 `--directory` 时，默认处理仓库内的 `jamba/results/` 目录。
 
 以上说明中的参数和路径请根据实际情况进行调整。

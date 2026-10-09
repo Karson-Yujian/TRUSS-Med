@@ -383,7 +383,7 @@ def main(model_name, dataset_filenames):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run inference with a specified model.')
     parser.add_argument('model_name', type=str, default="AI21-Jamba-Mini-1.6", help='Name of the model to use.')
-    parser.add_argument('dataset_filenames', type=str, nargs='+', help='Filenames of the datasets (e.g., usmle_test_10.json).')
+    parser.add_argument('dataset_filenames', type=str, nargs='+', help='Dataset paths (for example, an absolute path under data/MedQA or data/MedMCQA).')
     args = parser.parse_args()
 
     main(args.model_name, args.dataset_filenames)

@@ -453,8 +453,8 @@ def main(model_name, dataset_filenames, peft_relative_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run inference with a specified model.')
     parser.add_argument('model_name', type=str, default="AI21-Jamba-Mini-1.6", help='Name of the model to use.')
-    parser.add_argument('dataset_filenames', type=str, default="USMLE/RAG_MedQA_USS_test.json", nargs='+', help='Filenames of the datasets (e.g., usmle_test_10.json).')
-    parser.add_argument('peft_relative_path', type=str, default="AI21-Jamba-Mini-1.6/RAG_MedQA_USS_test_train/checkpoint-354", help='Relative path of the Peft model (e.g., AI21-Jamba-Mini-1.6/RAG_MedQA_USS_test/checkpoint-178).')
+    parser.add_argument('dataset_filenames', type=str, default="MedMCQA/result/Med_MCQA_knowledge_test.json", nargs='+', help='Dataset paths (for example, an absolute path under data/MedQA or data/MedMCQA).')
+    parser.add_argument('peft_relative_path', type=str, default="AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300", help='Relative path of the Peft model (for example, AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300).')
     args = parser.parse_args()
 
     main(args.model_name, args.dataset_filenames, args.peft_relative_path)

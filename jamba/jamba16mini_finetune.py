@@ -15,8 +15,8 @@ def main():
     parser = argparse.ArgumentParser(description="Fine-tune AI21-Jamba model on medical dataset")
     parser.add_argument("model_name", type=str, default="AI21-Jamba-Mini-1.6",
                         help="Model name under /work/home/acbjfbaxkm/AI21Labs/")
-    parser.add_argument("dataset_path", type=str, default="RAG_MedQA_USS_test_train.json",
-                        help="Dataset path under /work/home/acbjfbaxkm/DataSet/")
+    parser.add_argument("dataset_path", type=str, default="RAG_MedQA_Mainland_train_500(example).json",
+                        help="Absolute dataset path or path under /work/home/acbjfbaxkm/DataSet/")
     # 移除了 output_prefix 参数
     args = parser.parse_args()
 

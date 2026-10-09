@@ -464,7 +464,7 @@ Directories with suffixes such as <_nept_k4>, <_nept_k6>, and <_nept_k....>. The
 ```
 
 
-The dataset root path used in the original experiment was `/work/home/acbjfbaxkm/DataSet`. This repository can directly use the copied data under `data/MedQA`; an absolute path to the dataset file can be passed when running a script.
+The dataset root path used in the original experiment was `/work/home/acbjfbaxkm/DataSet`. This repository can directly use the copied data under `data/MedQA` and `data/MedMCQA`; an absolute path to the dataset file can be passed when running a script.
 The directory contains:
 **MedQA Directory**
 ```bash
@@ -535,7 +535,7 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 
 (3) Parameter Descriptions
 `<model_name>`: model name, for example, AI21-Jamba-Mini-1.6.
-`<dataset_path>`: dataset path, for example, RAG_MedQA_USS_test_train.json.
+`<dataset_path>`: dataset path, for example, `data/MedQA/RAG_MedQA_Mainland_train_500(example).json`.
 (4) Example
 ```bash
 python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
@@ -590,5 +590,6 @@ Example:
 cd ../utils
 python extract_answer.py --directory /path/to/your/directory
 ```
+If `--directory` is omitted, the script processes the repository's `jamba/results/` directory by default.
 
 Adjust the parameters and paths in this guide to match the actual environment.

@@ -246,8 +246,10 @@ def process_excel_files_in_directory(directory):
 def main():
     # 创建命令行参数解析器
     parser = argparse.ArgumentParser(description='Process Excel files in a directory.')
-    # 添加目录路径参数，设置默认值
-    parser.add_argument('--directory', type=str, default="/Users/karson/Documents/python_wokspace/jambaProject/jamba_results/large_mcqa",
+    # 添加目录路径参数，默认处理仓库内 jamba/results 目录
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    default_results_dir = os.path.join(project_root, 'jamba', 'results')
+    parser.add_argument('--directory', type=str, default=default_results_dir,
                         help='Directory path containing Excel files to process.')
 
     # 解析命令行参数
