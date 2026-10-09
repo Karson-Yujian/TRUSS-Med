@@ -1,0 +1,100 @@
+{
+    "RAG_MedQA_Mainland_test": {
+        "file_name": "MedQA/RAG_MedQA_Mainland_test.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "RAG_MedQA_Mainland_train": {
+        "file_name": "MedQA/RAG_MedQA_Mainland_train.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "MedQA_Mainland_train": {
+        "file_name": "MedQA/MedQA_Mainland_train.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "MedQA_Mainland_test": {
+        "file_name": "MedQA/MedQA_Mainland_test.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "RAG_MedQA_Mainland_test_300": {
+        "file_name": "MedQA/RAG_MedQA_Mainland_test_300.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "MedQA_Mainland_test_300": {
+        "file_name": "MedQA/MedQA_Mainland_test_300.json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    },
+    "RAG_MedQA_Mainland_train_500(example)": {
+        "file_name": "MedQA/RAG_MedQA_Mainland_train_500(example).json",
+        "formatting": "sharegpt",
+        "columns": {
+            "messages": "messages"
+        },
+        "tags": {
+            "role_tag": "role",
+            "content_tag": "content",
+            "user_tag": "user",
+            "assistant_tag": "assistant",
+            "system_tag": "system"
+        }
+    }
+}

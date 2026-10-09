@@ -2,7 +2,7 @@
 
 Jamba模型调试说明
 
-> 本文沿用原操作说明。数据集暂不上传；第一部分保留原数据构建环境和命令，其 `data/MedQA/utils` 等脚本路径对应[参考项目](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/main)，未全部包含在本仓库。第二部分为本项目的 Jamba 操作步骤。
+> 本文沿用原操作说明。`data/` 目录复用自[参考项目的 data 目录](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/2ce178140e0aab1cbe56691f28bbee00c3f09294/data)，包含 MedQA 数据、数据处理代码及 `dataset_info.json`；复制时仅排除了 `.DS_Store`、`__pycache__` 和 `.ipynb_checkpoints` 等缓存文件。`MCQA/` 暂为空目录，等待后续补充。第二部分为本项目的 Jamba 操作步骤。
 
 # 1. 构建数据集
 
@@ -12,7 +12,7 @@ Jamba模型调试说明
 ```bash
 conda activate llama_factory
 ```
-依赖名称参考 [requirements.txt](requirements.txt)。以下版本表保留原数据构建环境记录，不等同于第二部分的 Jamba 环境；本仓库依赖清单未锁定版本。
+完整依赖及版本参考 [requirements.txt](requirements.txt)。以下版本表保留原数据构建环境记录，不等同于第二部分的 Jamba 环境。
 
 ### 硬件与系统级驱动依赖
 
@@ -48,7 +48,7 @@ conda activate llama_factory
 
 
 ### 调用大模型接口的环境变量依赖
-本项目调用大模型（gpt-4-1106-preview、kimichat等）的部分依赖于[参考项目的 MultiProcessingLLM](https://github.com/julienamaury/Medical-Answering-Model-202410/tree/main/data/MedQA/utils/MultiProcessingLLM)。
+本项目调用大模型（gpt-4-1106-preview、kimichat等）的部分依赖于[data/MedQA/utils/MultiProcessingLLM](data/MedQA/utils/MultiProcessingLLM)。
 你可以从[https://platform.moonshot.cn](https://platform.moonshot.cn)、[https://api2d.com](https://api2d.com)当中注册账号申请api并使用LLM
 
 本部分主要用于调用KimiChat API时用到。需要调用那些大模型，就设置那些API。
@@ -125,7 +125,7 @@ cd <你的保存大模型的路径>
 
 ## 数据集预处理
 
-“已完成”指原实验中已完成；重新构建时按以下原步骤执行，并先在参考项目中准备相应脚本与数据。
+“已完成”指原实验中已完成；本仓库已经包含以下步骤所需的原始数据、处理代码与示例输出，重新构建时从项目根目录按以下原步骤执行。
 
 ### 将txt文本转换为json文本(已完成，无需重复操作)
 ```bash
@@ -152,7 +152,7 @@ python -u vector_store.py --input_json_dir '../data_clean/textbooks/en_json' --s
 * 特别地，```--device_ids```参数指定使用的显卡，如果只有一张显卡，就设置```--device_ids="0"```,```--num_process=1```。
 * 特别地，```--query_key_name```指定用于检索的query，可以选择"question"——仅用问题进行检索，或者"question_with_options"——问题与选项拼接在一起检索。最终方案使用了"question_with_options"。
 
-* 特别地，需要先打开[参考项目的 config.py](https://github.com/julienamaury/Medical-Answering-Model-202410/blob/main/data/MedQA/utils/config.py)修改"model_path"为服务器中检索Embedding模型的实际路径。
+* 特别地，需要先打开[data/MedQA/utils/config.py](data/MedQA/utils/config.py)修改"model_path"为服务器中检索Embedding模型的实际路径。
 
 
 ```bash
@@ -463,19 +463,17 @@ AI21-Jamba-Large-1.6
 ```
 
 
-数据集主路径：/work/home/acbjfbaxkm/DataSet（原实验中的以下数据集已处理；本仓库暂不上传数据，请另行准备。）
+原实验的数据集主路径为：/work/home/acbjfbaxkm/DataSet。当前仓库可直接使用 `data/MedQA` 下已复制的数据；运行脚本时可传入数据文件的绝对路径。
 该目录下包含：
-**USMLE 目录**
+**MedQA 目录**
 ```bash
-RAG_MedQA_USS_test_train.json：训练数据集（354 条）
-MedQA_USS_test.json：不包含知识的数据集（354 条）
-RAG_MedQA_USS_test.json：包含知识的数据集（354 条）
+data/MedQA/RAG_MedQA_Mainland_train_500(example).json：包含 messages 与 answer_idx 的训练示例
+data/MedQA/data_clean/questions：MedQA 原始题目数据
+data/MedQA/data_clean/textbooks：医学教材原始文本与转换后的 JSON 数据
 ```
 **MCQA 目录**
 ```bash
-Med_MCQA_knowledge_test_train.json：训练数据集（300 条）
-Med_MCQA_test.json：不包含知识的数据集（300 条）
-Med_MCQA_knowledge_test.json：包含知识的数据集（300 条）
+MCQA/：暂为空目录，后续补充 MedMCQA 数据
 ```
 
 
@@ -497,8 +495,7 @@ python jamba16large_inference.py <model_name> <dataset_filenames>
 `<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
 （四）示例
 ```bash
-python jamba16large_inference.py AI21-Jamba-Large-1.6 USMLE/MedQA_USS_test.json
-python jamba16large_inference.py AI21-Jamba-Large-1.6 MCQA/Med_MCQA_test.json
+python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
 ```
 
 ## 四、Jamba 16 Mini 版本推理
@@ -517,8 +514,7 @@ python jamba16mini_inference.py <model_name> <dataset_filenames>
 `<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
 （四）示例
 ```bash
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 USMLE/MedQA_USS_test.json
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_test.json
+python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
 ```
 
 ## 五、Jamba 16 Mini 版本 Finetune
@@ -537,8 +533,7 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 `<dataset_path>`：数据集路径，例如 RAG_MedQA_USS_test_train.json。
 （四）示例
 ```bash
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 USMLE/RAG_MedQA_USS_test_train.json
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_knowledge_test_train.json
+python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
 ```
 
 （五）finetune 结果
@@ -562,7 +557,7 @@ python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <pe
 `<peft_relative_path>`：Peft 模型的相对路径，固定路径为 /work/home/acbjfbaxkm/Jamba-Test/finetune_result，只需输入相对路径，例如 AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300。
 （四）示例
 ```bash
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 MCQA/Med_MCQA_knowledge_test.json AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300
+python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
 ```
 
 （五）说明
