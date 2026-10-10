@@ -543,7 +543,7 @@ python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA
 ```
 
 (5) Fine-Tuning Results
-Results are saved to `/work/home/acbjfbaxkm/Jamba-Test/finetune_result`.
+Results are saved to `jamba-finetune-data/` in the repository root.
 ## VI. Inference with a Fine-Tuned Jamba 16 Mini Model
 
 (1) Code File
@@ -560,7 +560,7 @@ python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <pe
 (3) Parameter Descriptions
 `<model_name>`: model name, for example, AI21-Jamba-Mini-1.6.
 `<dataset_filenames>`: dataset filenames. Multiple filenames can be supplied and separated by spaces, for example, dataset1.json dataset2.json.
-`<peft_relative_path>`: relative path to the PEFT model. The fixed root path is `/work/home/acbjfbaxkm/Jamba-Test/finetune_result`, so only the relative path is required, for example, AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300.
+`<peft_relative_path>`: relative path to the PEFT model. The fixed root path is `jamba-finetune-data/` in the repository root, so only the relative path is required, for example, AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300.
 (4) Example
 ```bash
 python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"

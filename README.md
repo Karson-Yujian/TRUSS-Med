@@ -543,7 +543,7 @@ python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA
 ```
 
 （五）finetune 结果
-保存目录为 /work/home/acbjfbaxkm/Jamba-Test/finetune_result。
+保存目录为仓库根目录下的 `jamba-finetune-data/`。
 ## 六、Jamba 16 Mini 版本 Finetune 后的推理
 
 （一）代码文件
@@ -560,7 +560,7 @@ python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <pe
 （三）参数说明
 `<model_name>`：模型名称，例如 AI21-Jamba-Mini-1.6。
 `<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
-`<peft_relative_path>`：Peft 模型的相对路径，固定路径为 /work/home/acbjfbaxkm/Jamba-Test/finetune_result，只需输入相对路径，例如 AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300。
+`<peft_relative_path>`：Peft 模型的相对路径，固定路径为仓库根目录下的 `jamba-finetune-data/`，只需输入相对路径，例如 AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300。
 （四）示例
 ```bash
 python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"

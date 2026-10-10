@@ -26,7 +26,8 @@ def main():
 
     # 使用 model_name 作为顶级目录
     dataset_name = os.path.splitext(os.path.basename(args.dataset_path))[0]
-    output_dir = os.path.join("/work/home/acbjfbaxkm/Jamba-Test/finetune_result",
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    output_dir = os.path.join(project_root, "jamba-finetune-data",
                               f"{args.model_name}/{dataset_name}")  # 修改了目录结构
     logging_dir = os.path.join(output_dir, "logs")
 

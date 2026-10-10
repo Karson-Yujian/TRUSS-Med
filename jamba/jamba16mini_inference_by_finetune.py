@@ -24,7 +24,8 @@ top_k = 20
 top_p = 0.75
 number_gpus = 2
 # 微调后的结果固定路径部分
-peft_fixed_path = "/work/home/acbjfbaxkm/Jamba-Test/finetune_result"
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+peft_fixed_path = os.path.join(project_root, "jamba-finetune-data")
 
 def merge_model(model_path, peft_relative_path):
     """
