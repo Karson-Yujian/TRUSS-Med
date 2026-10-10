@@ -11,20 +11,18 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from peft import PeftModel, PeftConfig
 import os
 import argparse
-from shutil import copy2
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 固定路径部分
-fixed_path = "/work/home/acbjfbaxkm/AI21Labs"
-dataset_path = "/work/home/acbjfbaxkm/DataSet/"
+# 仓库路径部分
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dataset_path = os.path.join(project_root, "data")
 temperature = 0.85
 top_k = 20
 top_p = 0.75
 number_gpus = 2
 # 微调后的结果固定路径部分
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 peft_fixed_path = os.path.join(project_root, "jamba-finetune-data")
 
 def merge_model(model_path, peft_relative_path):
@@ -62,27 +60,10 @@ def merge_model(model_path, peft_relative_path):
         logging.info(f"保存合并后的模型到: {peft_model_path}")
         merged_model.save_pretrained(peft_model_path)
 
-        # 复制分词器文件到合并目录
-        logging.info("复制分词器文件到合并目录")
-
-        # 从基础模型目录复制分词器文件
-        tokenizer_files = [
-            "tokenizer_config.json",
-            "special_tokens_map.json",
-            "tokenizer.model",
-            "vocab.json",
-            "merges.txt"
-        ]
-
-        for file in tokenizer_files:
-            src_file = os.path.join(model_path, file)
-            dst_file = os.path.join(peft_model_path, file)
-
-            if os.path.exists(src_file):
-                copy2(src_file, dst_file)
-                logging.info(f"复制 {file} 到 {peft_model_path}")
-            else:
-                logging.warning(f"未找到 {file} 文件，跳过复制")
+        # Hugging Face 模型 ID 和本地模型路径均通过同一接口保存分词器
+        logging.info("保存分词器到合并目录")
+        tokenizer = AutoTokenizer.from_pretrained(model_path)
+        tokenizer.save_pretrained(peft_model_path)
 
         return peft_model_path
     except Exception as e:
@@ -373,8 +354,9 @@ def extract_predicted_option_by_us(text):
 
 def main(model_name, dataset_filenames, peft_relative_path):
     """主函数，协调模型加载、数据处理和结果保存"""
-    # 构建完整的模型路径
-    model_path = os.path.join(fixed_path, model_name)
+    # 模型参数可以是 Hugging Face 模型 ID 或本地模型路径
+    model_path = model_name
+    model_label = os.path.basename(model_name.rstrip('/'))
 
     # 合并模型
     merged_model_path = merge_model(model_path, peft_relative_path)
@@ -433,7 +415,7 @@ def main(model_name, dataset_filenames, peft_relative_path):
 
             file_name = os.path.join(
                 'results',
-                f'jamba16mini_inference_{checkpoint_info}_{model_name}_{dataset_name}_temperature{int(temperature * 100)}_topp{int(top_p * 100)}_topk{top_k}_{current_time}.xlsx'
+                f'jamba16mini_inference_{checkpoint_info}_{model_label}_{dataset_name}_temperature{int(temperature * 100)}_topp{int(top_p * 100)}_topk{top_k}_{current_time}.xlsx'
             )
 
             # 保存到Excel
@@ -453,7 +435,7 @@ def main(model_name, dataset_filenames, peft_relative_path):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run inference with a specified model.')
-    parser.add_argument('model_name', type=str, default="AI21-Jamba-Mini-1.6", help='Name of the model to use.')
+    parser.add_argument('model_name', type=str, default="ai21labs/AI21-Jamba-Mini-1.6", help='Hugging Face model ID or local model path.')
     parser.add_argument('dataset_filenames', type=str, default="MedMCQA/result/Med_MCQA_knowledge_test.json", nargs='+', help='Dataset paths (for example, an absolute path under data/MedQA or data/MedMCQA).')
     parser.add_argument('peft_relative_path', type=str, default="AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300", help='Relative path of the Peft model (for example, AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300).')
     args = parser.parse_args()

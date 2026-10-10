@@ -14,9 +14,9 @@ import argparse
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# 固定路径部分
-fixed_path = "/work/home/acbjfbaxkm/AI21Labs"
-dataset_path = "/work/home/acbjfbaxkm/DataSet/"
+# 仓库路径部分
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+dataset_path = os.path.join(project_root, "data")
 temperature = 0.85
 top_k = 20
 top_p = 0.75
@@ -309,8 +309,9 @@ def extract_predicted_option_by_us(text):
 
 def main(model_name, dataset_filenames):
     """主函数，协调模型加载、数据处理和结果保存"""
-    # 构建完整的模型路径
-    model_path = os.path.join(fixed_path, model_name)
+    # 模型参数可以是 Hugging Face 模型 ID 或本地模型路径
+    model_path = model_name
+    model_label = os.path.basename(model_name.rstrip('/'))
 
     # 加载模型和分词器
     model, tokenizer = load_model_and_tokenizer(model_path)
@@ -361,7 +362,7 @@ def main(model_name, dataset_filenames):
 
             file_name = os.path.join(
                 'results',
-                f'jamba16mini_inference_{model_name}_{dataset_name}_temperature{int(temperature * 100)}_topp{int(top_p * 100)}_topk{top_k}_{current_time}.xlsx'
+                f'jamba16mini_inference_{model_label}_{dataset_name}_temperature{int(temperature * 100)}_topp{int(top_p * 100)}_topk{top_k}_{current_time}.xlsx'
             )
 
             # 保存到Excel
@@ -382,7 +383,7 @@ def main(model_name, dataset_filenames):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run inference with a specified model.')
-    parser.add_argument('model_name', type=str, default="AI21-Jamba-Mini-1.6", help='Name of the model to use.')
+    parser.add_argument('model_name', type=str, default="ai21labs/AI21-Jamba-Mini-1.6", help='Hugging Face model ID or local model path.')
     parser.add_argument('dataset_filenames', type=str, nargs='+', help='Dataset paths (for example, an absolute path under data/MedQA or data/MedMCQA).')
     args = parser.parse_args()
 

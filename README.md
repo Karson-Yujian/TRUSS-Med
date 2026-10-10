@@ -46,6 +46,11 @@ conda activate llama_factory
 | vllm         | 0.4.2     | 本项目必需，核心部署库，可能需要单独运行```pip install vllm==0.4.2```，安装非常耗时，且可能存在不成功的可能，安装难度较大，安装请参考：[https://docs.vllm.ai/en/latest/getting_started/installation.html](https://docs.vllm.ai/en/latest/getting_started/installation.html) |
 | llmtuner     | 0.7.1.dev0 | **本项目必需，核心训练库，安装时可能需要用git clone的方式安装，参考[https://github.com/hiyouga/LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)**，安装时可以参考教程[https://zhuanlan.zhihu.com/p/695287607](https://zhuanlan.zhihu.com/p/695287607) |
 
+Jamba 1.6 官方模型：
+* [AI21 Jamba Mini 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Mini-1.6)
+* [AI21 Jamba Large 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Large-1.6)
+
+运行 Jamba 脚本时，`<model_name>` 可以直接填写上述 Hugging Face 模型 ID，也可以填写已经下载到本地的模型目录绝对路径。
 
 ### 调用大模型接口的环境变量依赖
 本项目调用大模型（gpt-4-1106-preview、kimichat等）的部分依赖于[data/MedQA/utils/MultiProcessingLLM](data/MedQA/utils/MultiProcessingLLM)。
@@ -434,16 +439,16 @@ conda activate jamba
 ```
 
 （二）路径说明
-原服务器源码目录：/work/home/acbjfbaxkm/Jamba-Test
+原服务器源码目录现对应本仓库的 `jamba/` 目录。
 
 本仓库的四个模型脚本位于 `jamba/`，执行下列命令前进入该目录并创建结果目录：
 
 ```bash
-cd /path/to/TRUSS-Med/jamba
+cd jamba
 mkdir -p results
 ```
 
-模型、数据集和微调输出的固定路径仍按原脚本配置，请根据部署位置调整。
+模型可以使用 Hugging Face 模型 ID 或本地模型目录绝对路径；数据集根目录为仓库内的 `data/`，微调输出根目录为 `jamba-finetune-data/`。
 
 该目录下包含以下关键文件：
 ```bash
@@ -453,18 +458,7 @@ jamba16mini_inference.py
 jamba16mini_inference_by_finetune.py
 ```
 
-Jamba 模型主路径：/work/home/acbjfbaxkm/AI21Labs
-
-此目录下包含：
-
-```bash
-AI21-Jamba-Mini-1.6
-AI21-Jamba-Large-1.6
-带有 <_nept_k4>、<_nept_k6>、<_nept_k....> 等后缀的目录，这些目录是通过修改 config.json 中第 26 行 num_experts_per_tok 对应的值（原值为 2）得到的。
-```
-
-
-原实验的数据集主路径为：/work/home/acbjfbaxkm/DataSet。当前仓库可直接使用 `data/MedQA` 和 `data/MedMCQA` 下已复制的数据；运行脚本时可传入数据文件的绝对路径。
+当前仓库的数据集主路径为 `data/`，可直接使用 `data/MedQA` 和 `data/MedMCQA` 下的数据；运行脚本时可传入相对于 `data/` 的路径或数据文件的绝对路径。
 该目录下包含：
 **MedQA 目录**
 ```bash
@@ -487,19 +481,19 @@ data/MedMCQA/utils：MedMCQA 数据处理辅助文件
 jamba16large_inference.py
 ```
 （二）执行步骤
-设置参数：确保代码中的 fixed_path、dataset_path、temperature、top_k、top_p 等参数设置正确。
+设置参数：确认模型 ID 或本地模型路径、数据集路径、temperature、top_k、top_p 等参数正确。
 执行命令：
 ```bash
 python jamba16large_inference.py <model_name> <dataset_filenames>
 ```
 
 （三）参数说明
-`<model_name>`：模型名称，例如 AI21-Jamba-Large-1.6。
-`<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
+`<model_name>`：Hugging Face 模型 ID 或本地模型路径，例如 ai21labs/AI21-Jamba-Large-1.6。
+`<dataset_filenames>`：相对于 `data/` 的数据集路径或绝对路径，可以传入多个并用空格分隔。
 （四）示例
 ```bash
-python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
+python jamba16large_inference.py ai21labs/AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16large_inference.py ai21labs/AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## 四、Jamba 16 Mini 版本推理
@@ -507,19 +501,19 @@ python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedM
 （一）代码文件
 jamba16mini_inference.py
 （二）执行步骤
-设置参数：确保代码中的 fixed_path、dataset_path、temperature、top_k、top_p 等参数设置正确。
+设置参数：确认模型 ID 或本地模型路径、数据集路径、temperature、top_k、top_p 等参数正确。
 执行命令：
 ```bash
 python jamba16mini_inference.py <model_name> <dataset_filenames>
 ```
 
 （三）参数说明
-`<model_name>`：模型名称，例如 AI21-Jamba-Mini-1.6。
-`<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
+`<model_name>`：Hugging Face 模型 ID 或本地模型路径，例如 ai21labs/AI21-Jamba-Mini-1.6。
+`<dataset_filenames>`：相对于 `data/` 的数据集路径或绝对路径，可以传入多个并用空格分隔。
 （四）示例
 ```bash
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
+python jamba16mini_inference.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_inference.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## 五、Jamba 16 Mini 版本 Finetune
@@ -534,12 +528,12 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 ```
 
 （三）参数说明
-`<model_name>`：模型名称，例如 AI21-Jamba-Mini-1.6。
-`<dataset_path>`：数据集路径，例如 `data/MedQA/RAG_MedQA_Mainland_train_500(example).json`。
+`<model_name>`：Hugging Face 模型 ID 或本地模型路径，例如 ai21labs/AI21-Jamba-Mini-1.6。
+`<dataset_path>`：相对于 `data/` 的数据集路径，例如 `MedQA/RAG_MedQA_Mainland_train_500(example).json`；也可以传入绝对路径。
 （四）示例
 ```bash
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
+python jamba16mini_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
 ```
 
 （五）finetune 结果
@@ -551,24 +545,24 @@ python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA
 jamba16mini_inference_by_finetune.py
 ```
 （二）执行步骤
-设置参数：确保代码中的 fixed_path、dataset_path、temperature、top_k、top_p、peft_fixed_path 等参数设置正确。
+设置参数：确认模型 ID 或本地模型路径、数据集路径、temperature、top_k、top_p、peft_relative_path 等参数正确。
 执行命令：
 ```bash
 python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <peft_relative_path>
 ```
 
 （三）参数说明
-`<model_name>`：模型名称，例如 AI21-Jamba-Mini-1.6。
-`<dataset_filenames>`：数据集文件名，可以传入多个文件名，用空格分隔，例如 dataset1.json dataset2.json。
+`<model_name>`：Hugging Face 模型 ID 或本地模型路径，例如 ai21labs/AI21-Jamba-Mini-1.6。
+`<dataset_filenames>`：相对于 `data/` 的数据集路径或绝对路径，可以传入多个并用空格分隔。
 `<peft_relative_path>`：Peft 模型的相对路径，固定路径为仓库根目录下的 `jamba-finetune-data/`，只需输入相对路径，例如 AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300。
 （四）示例
 ```bash
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
+python jamba16mini_inference_by_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
+python jamba16mini_inference_by_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
 ```
 
 （五）说明
-推理前代码中会将原模型（例如 AI21-Jamba-Mini-1.6）跟 finetune 后的 lora 权重合并至 peft_relative_path 路径下的 merged 目录。
+推理前代码中会将原模型（例如 ai21labs/AI21-Jamba-Mini-1.6）跟 finetune 后的 lora 权重合并至 peft_relative_path 路径下的 merged 目录。
 
 ## 七、结果保存
 

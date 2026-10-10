@@ -13,22 +13,23 @@ logger = logging.get_logger(__name__)
 
 def main():
     parser = argparse.ArgumentParser(description="Fine-tune AI21-Jamba model on medical dataset")
-    parser.add_argument("model_name", type=str, default="AI21-Jamba-Mini-1.6",
-                        help="Model name under /work/home/acbjfbaxkm/AI21Labs/")
-    parser.add_argument("dataset_path", type=str, default="RAG_MedQA_Mainland_train_500(example).json",
-                        help="Absolute dataset path or path under /work/home/acbjfbaxkm/DataSet/")
+    parser.add_argument("model_name", type=str, default="ai21labs/AI21-Jamba-Mini-1.6",
+                        help="Hugging Face model ID or local model path")
+    parser.add_argument("dataset_path", type=str, default="MedQA/RAG_MedQA_Mainland_train_500(example).json",
+                        help="Absolute dataset path or path under the repository data directory")
     # 移除了 output_prefix 参数
     args = parser.parse_args()
 
-    # 构建完整路径
-    model_path = os.path.join("/work/home/acbjfbaxkm/AI21Labs/", args.model_name)
-    dataset_path = os.path.join("/work/home/acbjfbaxkm/DataSet/", args.dataset_path)
+    # 模型参数可以是 Hugging Face 模型 ID 或本地模型路径
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_path = args.model_name
+    dataset_path = os.path.join(project_root, "data", args.dataset_path)
 
     # 使用 model_name 作为顶级目录
     dataset_name = os.path.splitext(os.path.basename(args.dataset_path))[0]
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    model_name = os.path.basename(args.model_name.rstrip('/'))
     output_dir = os.path.join(project_root, "jamba-finetune-data",
-                              f"{args.model_name}/{dataset_name}")  # 修改了目录结构
+                              f"{model_name}/{dataset_name}")  # 修改了目录结构
     logging_dir = os.path.join(output_dir, "logs")
 
     # 创建输出目录

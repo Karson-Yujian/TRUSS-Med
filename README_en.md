@@ -46,6 +46,11 @@ The core package versions are as follows:
 | vLLM         | 0.4.2     | Required by this project and used as the core deployment library. You may need to run ```pip install vllm==0.4.2``` separately. Installation is time-consuming, may fail, and can be difficult. See the [vLLM installation guide](https://docs.vllm.ai/en/latest/getting_started/installation.html). |
 | llmtuner     | 0.7.1.dev0 | **Required by this project and used as the core training library. Installation may require cloning the [LLaMA-Factory repository](https://github.com/hiyouga/LLaMA-Factory) with Git.** You may also consult this [installation tutorial](https://zhuanlan.zhihu.com/p/695287607). |
 
+Official Jamba 1.6 models:
+* [AI21 Jamba Mini 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Mini-1.6)
+* [AI21 Jamba Large 1.6](https://huggingface.co/ai21labs/AI21-Jamba-Large-1.6)
+
+When running a Jamba script, `<model_name>` can be one of the Hugging Face model IDs above or an absolute path to a downloaded local model directory.
 
 ### Environment Variables for Large Language Model APIs
 The components that call large language models such as gpt-4-1106-preview and KimiChat depend on [data/MedQA/utils/MultiProcessingLLM](data/MedQA/utils/MultiProcessingLLM).
@@ -434,16 +439,16 @@ conda activate jamba
 ```
 
 (2) Path Reference
-Original server source directory: /work/home/acbjfbaxkm/Jamba-Test
+The original server source directory now corresponds to the repository's `jamba/` directory.
 
 The repository's four model scripts are located in `jamba/`. Enter this directory and create the results directory before running the commands below:
 
 ```bash
-cd /path/to/TRUSS-Med/jamba
+cd jamba
 mkdir -p results
 ```
 
-The fixed paths for the models, datasets, and fine-tuning outputs remain configured as in the original scripts. Adjust them to match your deployment location.
+The model can be supplied as a Hugging Face model ID or an absolute local model path. The dataset root is the repository's `data/` directory, and the fine-tuning output root is `jamba-finetune-data/`.
 
 This directory contains the following key files:
 ```bash
@@ -453,18 +458,7 @@ jamba16mini_inference.py
 jamba16mini_inference_by_finetune.py
 ```
 
-Jamba model root path: /work/home/acbjfbaxkm/AI21Labs
-
-This directory contains:
-
-```bash
-AI21-Jamba-Mini-1.6
-AI21-Jamba-Large-1.6
-Directories with suffixes such as <_nept_k4>, <_nept_k6>, and <_nept_k....>. These directories were produced by changing the value of `num_experts_per_tok` on line 26 of `config.json` from its original value of 2.
-```
-
-
-The dataset root path used in the original experiment was `/work/home/acbjfbaxkm/DataSet`. This repository can directly use the copied data under `data/MedQA` and `data/MedMCQA`; an absolute path to the dataset file can be passed when running a script.
+The repository's dataset root is `data/`. The data under `data/MedQA` and `data/MedMCQA` can be used directly; scripts accept a path relative to `data/` or an absolute dataset file path.
 The directory contains:
 **MedQA Directory**
 ```bash
@@ -487,19 +481,19 @@ data/MedMCQA/utils: auxiliary files for MedMCQA data processing
 jamba16large_inference.py
 ```
 (2) Procedure
-Configure the parameters: ensure that `fixed_path`, `dataset_path`, `temperature`, `top_k`, `top_p`, and other parameters in the code are set correctly.
+Configure the parameters: verify the model ID or local model path, dataset path, `temperature`, `top_k`, `top_p`, and other parameters.
 Run the command:
 ```bash
 python jamba16large_inference.py <model_name> <dataset_filenames>
 ```
 
 (3) Parameter Descriptions
-`<model_name>`: model name, for example, AI21-Jamba-Large-1.6.
-`<dataset_filenames>`: dataset filenames. Multiple filenames can be supplied and separated by spaces, for example, dataset1.json dataset2.json.
+`<model_name>`: Hugging Face model ID or local model path, for example, ai21labs/AI21-Jamba-Large-1.6.
+`<dataset_filenames>`: dataset paths relative to `data/` or absolute paths. Multiple paths can be supplied and separated by spaces.
 (4) Example
 ```bash
-python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
+python jamba16large_inference.py ai21labs/AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16large_inference.py ai21labs/AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## IV. Jamba 16 Mini Inference
@@ -507,19 +501,19 @@ python jamba16large_inference.py AI21-Jamba-Large-1.6 "$(cd .. && pwd)/data/MedM
 (1) Code File
 jamba16mini_inference.py
 (2) Procedure
-Configure the parameters: ensure that `fixed_path`, `dataset_path`, `temperature`, `top_k`, `top_p`, and other parameters in the code are set correctly.
+Configure the parameters: verify the model ID or local model path, dataset path, `temperature`, `top_k`, `top_p`, and other parameters.
 Run the command:
 ```bash
 python jamba16mini_inference.py <model_name> <dataset_filenames>
 ```
 
 (3) Parameter Descriptions
-`<model_name>`: model name, for example, AI21-Jamba-Mini-1.6.
-`<dataset_filenames>`: dataset filenames. Multiple filenames can be supplied and separated by spaces, for example, dataset1.json dataset2.json.
+`<model_name>`: Hugging Face model ID or local model path, for example, ai21labs/AI21-Jamba-Mini-1.6.
+`<dataset_filenames>`: dataset paths relative to `data/` or absolute paths. Multiple paths can be supplied and separated by spaces.
 (4) Example
 ```bash
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16mini_inference.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
+python jamba16mini_inference.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_inference.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_test.json"
 ```
 
 ## V. Jamba 16 Mini Fine-Tuning
@@ -534,12 +528,12 @@ python jamba16mini_finetune.py <model_name> <dataset_path>
 ```
 
 (3) Parameter Descriptions
-`<model_name>`: model name, for example, AI21-Jamba-Mini-1.6.
-`<dataset_path>`: dataset path, for example, `data/MedQA/RAG_MedQA_Mainland_train_500(example).json`.
+`<model_name>`: Hugging Face model ID or local model path, for example, ai21labs/AI21-Jamba-Mini-1.6.
+`<dataset_path>`: dataset path relative to `data/`, for example, `MedQA/RAG_MedQA_Mainland_train_500(example).json`; an absolute path is also accepted.
 (4) Example
 ```bash
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
-python jamba16mini_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
+python jamba16mini_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json"
+python jamba16mini_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test_train.json"
 ```
 
 (5) Fine-Tuning Results
@@ -551,24 +545,24 @@ Results are saved to `jamba-finetune-data/` in the repository root.
 jamba16mini_inference_by_finetune.py
 ```
 (2) Procedure
-Configure the parameters: ensure that `fixed_path`, `dataset_path`, `temperature`, `top_k`, `top_p`, `peft_fixed_path`, and other parameters in the code are set correctly.
+Configure the parameters: verify the model ID or local model path, dataset path, `temperature`, `top_k`, `top_p`, `peft_relative_path`, and other parameters.
 Run the command:
 ```bash
 python jamba16mini_inference_by_finetune.py <model_name> <dataset_filenames> <peft_relative_path>
 ```
 
 (3) Parameter Descriptions
-`<model_name>`: model name, for example, AI21-Jamba-Mini-1.6.
-`<dataset_filenames>`: dataset filenames. Multiple filenames can be supplied and separated by spaces, for example, dataset1.json dataset2.json.
+`<model_name>`: Hugging Face model ID or local model path, for example, ai21labs/AI21-Jamba-Mini-1.6.
+`<dataset_filenames>`: dataset paths relative to `data/` or absolute paths. Multiple paths can be supplied and separated by spaces.
 `<peft_relative_path>`: relative path to the PEFT model. The fixed root path is `jamba-finetune-data/` in the repository root, so only the relative path is required, for example, AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300.
 (4) Example
 ```bash
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
-python jamba16mini_inference_by_finetune.py AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
+python jamba16mini_inference_by_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedQA/RAG_MedQA_Mainland_train_500(example).json" "AI21-Jamba-Mini-1.6/RAG_MedQA_Mainland_train_500(example)/checkpoint-300"
+python jamba16mini_inference_by_finetune.py ai21labs/AI21-Jamba-Mini-1.6 "$(cd .. && pwd)/data/MedMCQA/result/Med_MCQA_knowledge_test.json" "AI21-Jamba-Mini-1.6/Med_MCQA_knowledge_test_train/checkpoint-300"
 ```
 
 (5) Notes
-Before inference, the code merges the original model, such as AI21-Jamba-Mini-1.6, with the fine-tuned LoRA weights into the `merged` directory under `peft_relative_path`.
+Before inference, the code merges the original model, such as ai21labs/AI21-Jamba-Mini-1.6, with the fine-tuned LoRA weights into the `merged` directory under `peft_relative_path`.
 
 ## VII. Saving Results
 
